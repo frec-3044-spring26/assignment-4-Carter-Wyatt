@@ -42,6 +42,7 @@ There should be four columns and \~2703 rows.
 We will practice key skills in the module using a focal lake. Use the `filter` function to filter the more extensive data to only contain the data from Lake Sunapee, a lake in New Hampshire. Filter the data `ice_data` by the variable `lake_name` to create a data frame called `sunapee`.
 
 ```{r}
+library(tidyverse)
 sunapee <- ice_data |>
   filter( lake_name == "Sunapee")
 
@@ -140,11 +141,12 @@ We will use a histogram to visually assess whether this requirement is met. Firs
 You will use a histogram to examine the residuals. First, the code uses the coefficients to predict the yearly ice-off DOY. Second, calculate the residuals by subtracting the predicted ice-off DOY from the observed DOY.
 
 ```{r}
+sunapee<- sunapee |>
+   mutate(ice_off_doy = as.numeric(ice_off_doy))
 sunapee <- sunapee %>% 
   mutate(predicted = fit$coefficients[1] + year * fit$coefficients[2], 
          residual = ice_off_doy - predicted) #Observed - Predicted
-   # sunapee<- sunapee |>
-   # mutate(ice_off_doy = as.numeric(ice_off_doy))
+  
 #str(sunapee)
 ```
 
@@ -155,7 +157,7 @@ Use the [`add_predictions()`](https://modelr.tidyverse.org/reference/add_predict
 **Answer 5:**
 
 ```{r}
-#library(modelr)
+library(modelr)
 
 sunapee <- sunapee |>
   add_predictions(fit) |>
@@ -268,8 +270,7 @@ So yes the ice off day is changing mroe quickly and you can tell by the slop of 
 Use a mix of code, figures, and text to present your analysis.  If you want to compare slopes, be sure they are on the same plot.
 
 ```{r}
-#install.packages("patchwork")
-#library(patchwork)
+library(patchwork)
 pre <- (sunapee |> filter(year < 1970))
 post <- (sunapee |> filter(year > 1970))
 G1<-ggplot(pre, aes(x=year,y=ice_off_doy))+
