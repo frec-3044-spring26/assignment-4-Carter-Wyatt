@@ -60,7 +60,13 @@ Be sure that the title, x-axis, and y-axis labels are clearly labeled.
 **Answer 1:**
 
 ```{r}
-
+ggplot(sunapee, aes(x=year, y = ice_off_doy))+
+  geom_point(color = "black")+
+  geom_line(color = "red")+
+  labs(
+    title = "Lake Sunapee Ice off days throughout the years",
+    x = "Year",
+    y =  "Day at Which no Ice was in the Lake")
 ```
 
 # How does ice cover change over time at Lake Sunapee?
@@ -71,20 +77,22 @@ We want to model how the ice-off date changes over time. Our approach in this mo
 
 What do you expect the sign (plus, minus, or no change) to be for the slope of the relationship? Why?
 
-**Answer 2:**
+**Answer 2:** I think the sign will be + becuase there is going to be ups and downs in the relationship which means you need to add the different parts to get an overall answer.
 
 Use the `lm` function to predict `ice_off_doy` as a function (`~`) of the year for the data.frame called `sunapee`. You can learn more about the `lm` function [here](https://www.datacamp.com/tutorial/linear-regression-R)
 
 Create an object called `fit` that contains the results of the linear model.
 
 ```{r}
+fit <- lm(ice_off_doy ~ year, data = sunapee)
+
 
 ```
 
 Then, use the function `summary` to explore the result of the `lm` function.
 
 ```{r}
-
+summary(fit)
 ```
 
 The results of your linear model are in an object named `fit`, so you can find the regression coefficients at `fit$coefficients[1]` (the intercept) and `fit$coefficients[2]` (the slope). Confirm that `fit$coefficients[1]` and `fit$coefficients[2]` match the values expected from the summary command you ran above.
@@ -98,9 +106,10 @@ fit$coefficients[2]
 
 What is the direction of the slope? How does this match your expectations from Question 2?
 
-**Answer 3:**
+**Answer 3:**.   The slope is going down meaing the ice off days is getting earlier everyday.
 
-# Is our model any good?
+# Is our model any good? 
+No becuase we have small R2
 
 ## R2
 
@@ -110,7 +119,7 @@ First, it is important to understand how much variation is explained by the mode
 
 What is the R2 for the regression? Based on the R2, is `year` and `ice_off_doy` strongly related?
 
-**Answer 4:**
+**Answer 4:**.  The R2 is  0.2055, The are not strongky related becuase of the small R2. The R2 needs to be closer to 1 to have a storng relationship.
 
 ## Residuals normally distributed
 
@@ -133,6 +142,9 @@ You will use a histogram to examine the residuals. First, the code uses the coef
 sunapee <- sunapee %>% 
   mutate(predicted = fit$coefficients[1] + year * fit$coefficients[2], 
          residual = ice_off_doy - predicted) #Observed - Predicted
+ # sunapee<- sunapee |>
+  # mutate(ice_off_doy = as.numeric(ice_off_doy))
+#str(sunapee)
 ```
 
 **Question 5:**
@@ -142,7 +154,11 @@ Use the [`add_predictions()`](https://modelr.tidyverse.org/reference/add_predict
 **Answer 5:**
 
 ```{r}
+#library(modelr)
 
+sunapee <- sunapee |>
+  add_predictions(fit) |>
+  add_residuals(fit)
 ```
 
 Now, to visualize the residuals, use `geom_histogram()` to plot them as a histogram. I recommend using a bin width of 10 in the histogram.
@@ -154,7 +170,15 @@ Show Histogram and answer the following question: do the residuals meet the assu
 **Answer 6:**
 
 ```{r}
-
+sunapee |>
+ggplot()+
+  geom_histogram(aes( x= residual), bins = 10)+
+  labs(
+    title = "Ice Off Day Residuals",
+    x = "Residuals",
+    y = "Number of the Different Residuals"
+    
+  )
 ```
 
 
@@ -164,9 +188,9 @@ A slope could appear to be higher or lower than zero, but the uncertainty in the
 
 **Question 7:**
 
-Based on the `summary()` above, what is the p-value for the slope?
+Based on the `summary()` above, what is the p-value for the slope? 
 
-**Answer 7:**
+**Answer 7:** The P value is 2.504e-09
 
 ## The slope physically meaningful
 
@@ -176,7 +200,7 @@ A slope value could have a low probability of being 0 (thus we have a strong bel
 
 Based on the slope value, how many more years are needed to pass before the lake has a 1 week change in ice off doy? Do you think this is meaningful? Why?
 
-**Answer 8:**
+**Answer 8:**.  Based on the slope value a 1 week change would be around 66 years due to the -0.106 slope. And the Pvalue confirms that it is meaningful because the pvalue is close to 0.
 
 ## Overall model assessment
 
@@ -184,7 +208,7 @@ Based on the slope value, how many more years are needed to pass before the lake
 
 How comfortable are you proceeding with using this linear model for additional analysis and prediction? Why? (I am not looking for your gut answer, rather I want you to apply concepts taught in this module to justify your answer)
 
-**Answer 9:**
+**Answer 9:**  I am feeling good based off my P value being close to 0 and with a negtive slope because with global warming the slope should be negative for the ice off day.
 
 **Question 10:**
 Now plot the data for Lake Sunapee (just like above - year on x-axis vs. ice of doy on y axis) but add the line from your regression results (e.g., fit intercept and slope). You will use the [`geom_abline`](https://ggplot2.tidyverse.org/reference/geom_abline.html). 
